@@ -1,0 +1,21 @@
+- hosts: test
+  gather_facts: no
+  become: true
+  tasks:
+
+    - name: Add new user
+      user:
+          name: "{{ username }}"
+          shell: /bin/bash
+
+    - name: Add user to sudoers
+      copy:
+          dest: "/etc/sudoers.d/{{ username }}"
+          content: "{{ username }}  ALL=(ALL)  NOPASSWD: ALL"
+
+    - name: Deploy SSH Key
+      authorized_key:
+          user: "{{ username }}"
+          key: "{{ lookup('file', '/root/id_rsa_{{ username }}.pub') }}"
+          state: present
+## Command run : ansible-playbook add-user.yaml --extra-vars "username=nhatminh"
